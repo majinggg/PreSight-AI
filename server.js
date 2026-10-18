@@ -453,7 +453,7 @@ app.post('/api/analyze', async (req, res) => {
 
 if (isProduction) {
   app.use(express.static(path.join(__dirname, 'dist')))
-  app.get('*', (_req, res) => res.sendFile(path.join(__dirname, 'dist', 'index.html')))
+  app.use((_req, res) => res.sendFile(path.join(__dirname, 'dist', 'index.html')))
   const port = Number(process.env.PORT || 4173)
   app.listen(port, '0.0.0.0', () => console.log(`PreSight AI server running on ${port}`))
 } else {
