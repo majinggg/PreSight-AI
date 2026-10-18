@@ -447,7 +447,10 @@ app.post('/api/analyze', async (req, res) => {
     res.json({ query, analysis: normalizeAnalysis(analysis), rawAnalysis: analysis, fallback: usedFallback, analyzedAt: new Date().toISOString() })
   } catch (error) {
     console.error('Analysis request failed:', error)
-    res.status(502).json({ error: '无法连接 AI 分析服务，请稍后重试。' })
+    const configuredBase = (process.env.OPENAI_BASE_URL || 'https://api.openai.com/v1').replace(/\/$/, '')
+    const model = process.env.OPENAI_MODEL || 'gpt-4o-mini'
+    const cause = error?.cause?.code || error?.cause?.message || error?.message || 'unknown'
+    res.status(502).json({ error: `无法连接 AI 分析服务（网关：${configuredBase}，模型：${model}，原因：${cause}）。请检查 Render 环境变量和模型网关网络。` })
   }
 })
 
