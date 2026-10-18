@@ -9,7 +9,7 @@ import { createServer as createViteServer } from 'vite'
 dotenv.config({ override: true })
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url))
-const isProduction = process.env.NODE_ENV === 'production'
+const isProduction = process.env.NODE_ENV === 'production' || process.env.RENDER === 'true'
 const app = express()
 app.use(express.json({ limit: '256kb' }))
 const upload = multer({ storage: multer.memoryStorage(), limits: { fileSize: 15 * 1024 * 1024 } })
@@ -454,9 +454,11 @@ app.post('/api/analyze', async (req, res) => {
 if (isProduction) {
   app.use(express.static(path.join(__dirname, 'dist')))
   app.get('*', (_req, res) => res.sendFile(path.join(__dirname, 'dist', 'index.html')))
-  app.listen(process.env.PORT || 4173, () => console.log(`PreSight AI server running on ${process.env.PORT || 4173}`))
+  const port = Number(process.env.PORT || 4173)
+  app.listen(port, '0.0.0.0', () => console.log(`PreSight AI server running on ${port}`))
 } else {
   const vite = await createViteServer({ server: { middlewareMode: true }, appType: 'spa' })
   app.use(vite.middlewares)
-  app.listen(process.env.PORT || 5173, () => console.log(`PreSight AI dev server running on http://localhost:${process.env.PORT || 5173}`))
+  const port = Number(process.env.PORT || 5173)
+  app.listen(port, '0.0.0.0', () => console.log(`PreSight AI dev server running on http://localhost:${port}`))
 }
